@@ -1,5 +1,7 @@
 # pi-tickets
 
+> One of my diet context engineering and workflow extensions. Add pi-diet-LSP, pi-diet-Ripgrep, pi-repo-move and others from [npm](https://www.npmjs.com/~probabilityengineer).
+
 Compact tk ticket workflow tools for Pi agents with low prompt overhead.
 
 `pi-tickets` gives Pi agents a small, explicit interface to [`tk`](https://github.com/radutopala/ticket) tickets without injecting ticket lists into every prompt. It provides one compact model-visible `ticket` tool for listing, creating, starting, updating, noting, and closing tickets, plus a `/tickets` command for user-facing ticket actions. Ticket state stays in the repo's `.tickets/` files, so real project work can be reviewed and committed like any other project artifact.
