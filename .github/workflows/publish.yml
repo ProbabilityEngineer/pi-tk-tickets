@@ -1,6 +1,9 @@
 name: Publish Pi ticket packages
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       package:
@@ -26,7 +29,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
       - name: Validate and publish pi-tk-tickets
-        if: inputs.package == 'pi-tk-tickets'
+        if: github.event_name == 'push' || inputs.package == 'pi-tk-tickets'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
