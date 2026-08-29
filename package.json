@@ -1,19 +1,19 @@
 {
-  "name": "pi-tickets",
-  "version": "0.1.4",
+  "name": "pi-tk-tickets",
+  "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "Compact tk ticket workflow tools for Pi agents with low prompt overhead.",
+  "description": "Compact tk ticket workflow extension for Pi agents with low prompt overhead.",
   "main": "index.ts",
   "license": "MIT",
   "author": "ProbabilityEngineer",
-  "homepage": "https://github.com/ProbabilityEngineer/pi-tickets#readme",
+  "homepage": "https://github.com/ProbabilityEngineer/pi-tk-tickets#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProbabilityEngineer/pi-tickets.git"
+    "url": "git+https://github.com/ProbabilityEngineer/pi-tk-tickets.git"
   },
   "bugs": {
-    "url": "https://github.com/ProbabilityEngineer/pi-tickets/issues"
+    "url": "https://github.com/ProbabilityEngineer/pi-tk-tickets/issues"
   },
   "scripts": {
     "lint": "tsc --noEmit",

@@ -1,0 +1,22 @@
+{
+  "name": "pi-tickets",
+  "version": "0.1.5",
+  "private": false,
+  "type": "module",
+  "description": "Deprecated: renamed to pi-tk-tickets.",
+  "license": "MIT",
+  "author": "ProbabilityEngineer",
+  "homepage": "https://github.com/ProbabilityEngineer/pi-tk-tickets#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProbabilityEngineer/pi-tk-tickets.git"
+  },
+  "keywords": ["pi-package", "pi-extension", "pi", "deprecated", "tk", "tickets"],
+  "files": ["index.ts", "README.md", "LICENSE"],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}

@@ -1,30 +1,34 @@
-# pi-tickets
+# pi-tk-tickets
 
 > One of my diet context engineering and workflow extensions. Add pi-diet-LSP, pi-diet-Ripgrep, pi-repo-move and others from [npm](https://www.npmjs.com/~probabilityengineer).
 
 Compact tk ticket workflow tools for Pi agents with low prompt overhead.
 
-`pi-tickets` gives Pi agents a small, explicit interface to [`tk`](https://github.com/radutopala/ticket) tickets without injecting ticket lists into every prompt. It provides one compact model-visible `ticket` tool for listing, creating, starting, updating, noting, and closing tickets, plus a `/tickets` command for user-facing ticket actions. Ticket state stays in the repo's `.tickets/` files, so real project work can be reviewed and committed like any other project artifact.
+`pi-tk-tickets` gives Pi agents a small, explicit interface to [`tk`](https://github.com/radutopala/ticket) tickets without injecting ticket lists into every prompt. It provides one compact model-visible `ticket` tool for listing, creating, starting, updating, noting, and closing tickets, plus a `/tickets` command for user-facing ticket actions. Ticket state stays in the repo's `.tickets/` files, so real project work can be reviewed and committed like any other project artifact.
 
 ## Install
 
 From npm:
 
 ```bash
-pi install npm:pi-tickets
+pi install npm:pi-tk-tickets
 ```
 
 From GitHub:
 
 ```bash
-pi install git:github.com/ProbabilityEngineer/pi-tickets
+pi install git:github.com/ProbabilityEngineer/pi-tk-tickets
 ```
 
 For project-local install, add `-l`:
 
 ```bash
-pi install -l git:github.com/ProbabilityEngineer/pi-tickets
+pi install -l git:github.com/ProbabilityEngineer/pi-tk-tickets
 ```
+
+## Migration from pi-tickets
+
+`pi-tickets` was renamed to avoid confusion with the unrelated `@danypops/pi-tickets` extension. Install this package with `pi install npm:pi-tk-tickets`. The legacy package emits a migration notice and is deprecated on npm.
 
 ## Requirements
 
@@ -73,7 +77,7 @@ Examples:
 
 ## Prompt overhead
 
-`pi-tickets` avoids automatic ticket-list injection. Agents can call the `ticket` tool when ticket context is useful, keeping prompts small and cache-friendly.
+`pi-tk-tickets` avoids automatic ticket-list injection. Agents can call the `ticket` tool when ticket context is useful, keeping prompts small and cache-friendly.
 
 ## Development
 

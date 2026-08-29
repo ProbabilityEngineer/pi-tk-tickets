@@ -1,9 +1,15 @@
-name: Publish Package
+name: Publish Pi ticket packages
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package to publish"
+        required: true
+        type: choice
+        options:
+          - pi-tk-tickets
+          - pi-tickets-legacy
 
 permissions:
   contents: read
@@ -19,7 +25,21 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm run lint --if-present
-      - run: npm publish --access public --provenance
+      - name: Validate and publish pi-tk-tickets
+        if: inputs.package == 'pi-tk-tickets'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then export NODE_AUTH_TOKEN="$NPM_TOKEN"; fi
+          npm ci
+          npm run build --if-present
+          npm run lint --if-present
+          npm publish --access public --provenance
+      - name: Publish legacy migration notice
+        if: inputs.package == 'pi-tickets-legacy'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        working-directory: legacy/pi-tickets
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then export NODE_AUTH_TOKEN="$NPM_TOKEN"; fi
+          npm publish --access public --provenance
