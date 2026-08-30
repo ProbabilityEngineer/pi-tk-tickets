@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import * as path from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
@@ -8,6 +10,7 @@ const ACTIONS = ["ready", "list", "show", "create", "start", "close", "note", "s
 const STATUSES = ["open", "in_progress", "closed"] as const;
 const TYPES = ["bug", "feature", "task", "epic", "chore"] as const;
 const MAX_OUTPUT = 40_000;
+const BUNDLED_TK = fileURLToPath(new URL("./vendor/wedow-ticket/tk", import.meta.url));
 const TICKET_PROMPT_SNIPPET =
 	"Ticket routing: for non-trivial feature/fix work, use ticket ready/show/create/start/close to track tk tickets; set cwd for tickets in another repo.";
 const TICKET_GUIDELINES = [
@@ -52,9 +55,13 @@ function clampLimit(value: unknown) {
 	return Math.max(1, Math.min(100, Number.isFinite(n) ? Math.floor(n) : 20));
 }
 
+function tkExecutable() {
+	return process.env.TK_BIN || (existsSync(BUNDLED_TK) ? BUNDLED_TK : "tk");
+}
+
 async function runTk(args: string[], cwd?: string): Promise<RunResult> {
 	return await new Promise((resolve) => {
-		const child = spawn("tk", args, {
+		const child = spawn(tkExecutable(), args, {
 			cwd: cwd ?? process.cwd(),
 			stdio: ["ignore", "pipe", "pipe"],
 		});
@@ -102,6 +109,29 @@ async function findTicketsDir(start: string) {
 		if (parent === dir) throw new Error("no .tickets directory found");
 		dir = parent;
 	}
+}
+
+type TicketSummary = { id: string; status: string; priority: number; title: string };
+
+function ticketSummary(content: string): TicketSummary | undefined {
+	const id = /^id:\s*(.+)$/m.exec(content)?.[1]?.trim();
+	const status = /^status:\s*(.+)$/m.exec(content)?.[1]?.trim();
+	const title = /^#\s+(.+)$/m.exec(content)?.[1]?.trim();
+	if (!id || !status || !title) return undefined;
+	const priority = Number(/^priority:\s*(\d+)$/m.exec(content)?.[1] ?? 2);
+	return { id, status, priority, title };
+}
+
+async function listTickets(cwd: string | undefined, status?: string) {
+	const ticketsDir = await findTicketsDir(cwd ?? process.cwd());
+	const entries = await fs.readdir(ticketsDir);
+	const tickets = (await Promise.all(entries.filter((entry) => entry.endsWith(".md")).map(async (entry) =>
+		ticketSummary(await fs.readFile(path.join(ticketsDir, entry), "utf8")),
+	))).filter((ticket): ticket is TicketSummary => ticket !== undefined && (!status || ticket.status === status));
+	return tickets
+		.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id))
+		.map((ticket) => `${ticket.id.padEnd(8)} [P${ticket.priority}][${ticket.status}] - ${ticket.title}`)
+		.join("\n") || emptyOutputFor("list");
 }
 
 async function ticketPath(cwd: string, id: string) {
@@ -188,11 +218,8 @@ function argsFor(params: TicketParams) {
 	switch (params.action) {
 		case "ready":
 			return ["ready"];
-		case "list": {
-			const args = ["list"];
-			if (params.status) args.push(`--status=${params.status}`);
-			return args;
-		}
+		case "list":
+			throw new Error("list is handled without tk args");
 		case "show":
 			return ["show", requireField(params.id, "id")];
 		case "start":
@@ -237,7 +264,7 @@ function tkArgsForCommand(input: string): string[] | null {
 	const trimmed = input.trim();
 	const { action, rest } = commandArgs(trimmed);
 	if (!trimmed || action === "ready") return ["ready"];
-	if (action === "list") return ["list"];
+	if (action === "list") return null;
 	if (action === "show") return ["show", requireField(rest[0], "id")];
 	if (action === "start") return ["start", requireField(rest[0], "id")];
 	if (action === "close") return ["close", requireField(rest[0], "id")];
@@ -266,6 +293,10 @@ export default function (pi: ExtensionAPI) {
 				const scopedInput = [parsed.action, ...scoped.rest].join(" ");
 				if (parsed.action === "init") {
 					ctx.ui.notify(await initTickets(scoped.cwd), "info");
+					return;
+				}
+				if (parsed.action === "list") {
+					ctx.ui.notify(await listTickets(scoped.cwd), "info");
 					return;
 				}
 				const tkArgs = tkArgsForCommand(scopedInput)!;
@@ -307,13 +338,16 @@ export default function (pi: ExtensionAPI) {
 				if (params.action === "update") {
 					return text(await updateTicket(params, cwd), { code: 0, action: "update", cwd });
 				}
+				if (params.action === "list") {
+					return text(await listTickets(cwd, params.status), { code: 0, action: "list", cwd });
+				}
 				const args = argsFor(params);
 				const result = await runTk(args, cwd);
 				const rendered = output(result, params.action)
 					.split(/\r?\n/)
-					.slice(0, params.action === "ready" || params.action === "list" ? clampLimit(params.limit) : 200)
+					.slice(0, params.action === "ready" ? clampLimit(params.limit) : 200)
 					.join("\n");
-				return text(rendered, { code: result.code, command: "tk", args, cwd });
+				return text(rendered, { code: result.code, command: tkExecutable(), args, cwd });
 			} catch (error) {
 				return text(error instanceof Error ? error.message : String(error), { code: 2 });
 			}

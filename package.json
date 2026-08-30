@@ -1,6 +1,6 @@
 {
   "name": "pi-tk-tickets",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "description": "Compact tk ticket workflow extension for Pi agents with low prompt overhead.",
@@ -17,7 +17,9 @@
   },
   "scripts": {
     "lint": "tsc --noEmit",
-    "build": "tsc --project tsconfig.json"
+    "build": "tsc --project tsconfig.json",
+    "test": "bash tests/bundled-tk.sh",
+    "pack:check": "npm pack --dry-run"
   },
   "keywords": [
     "pi-package",
@@ -33,7 +35,9 @@
     "index.ts",
     "README.md",
     "LICENSE",
-    "tsconfig.json"
+    "THIRD_PARTY_NOTICES.md",
+    "tsconfig.json",
+    "vendor/wedow-ticket"
   ],
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",

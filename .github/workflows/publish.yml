@@ -37,6 +37,7 @@ jobs:
           npm ci
           npm run build --if-present
           npm run lint --if-present
+          npm test --if-present
           npm publish --access public --provenance
       - name: Publish legacy migration notice
         if: inputs.package == 'pi-tickets-legacy'

@@ -4,7 +4,7 @@
 
 Compact tk ticket workflow tools for Pi agents with low prompt overhead.
 
-`pi-tk-tickets` gives Pi agents a small, explicit interface to [`tk`](https://github.com/radutopala/ticket) tickets without injecting ticket lists into every prompt. It provides one compact model-visible `ticket` tool for listing, creating, starting, updating, noting, and closing tickets, plus a `/tickets` command for user-facing ticket actions. Ticket state stays in the repo's `.tickets/` files, so real project work can be reviewed and committed like any other project artifact.
+`pi-tk-tickets` gives Pi agents a small, explicit interface to [`tk`](https://github.com/wedow/ticket) tickets without injecting ticket lists into every prompt. It provides one compact model-visible `ticket` tool for listing, creating, starting, updating, noting, and closing tickets, plus a `/tickets` command for user-facing ticket actions. Ticket state stays in the repo's `.tickets/` files, so real project work can be reviewed and committed like any other project artifact.
 
 ## Install
 
@@ -32,7 +32,15 @@ pi install -l git:github.com/ProbabilityEngineer/pi-tk-tickets
 
 ## Requirements
 
-Install [`tk`](https://github.com/radutopala/ticket) so the `tk` executable is on `PATH`.
+No separate `tk` installation is normally required. The package includes the canonical Bash implementation from [`wedow/ticket`](https://github.com/wedow/ticket), pinned to a reviewed upstream commit and distributed with its MIT license.
+
+The resolver uses `TK_BIN` first, then the bundled implementation, then `tk` on `PATH` if the bundled file is unavailable. Set `TK_BIN` to use a particular local executable:
+
+```bash
+TK_BIN=/opt/homebrew/bin/tk pi
+```
+
+The bundled implementation requires Bash and standard Unix command-line utilities. A separately installed `tk` remains useful for local customization and plugins.
 
 ## Command
 
@@ -84,4 +92,10 @@ Examples:
 ```bash
 npm install
 npm run lint
+npm test
+npm run pack:check
 ```
+
+### Updating the bundled tk
+
+`vendor/wedow-ticket/README.md` records the pinned upstream commit. When updating, review and pin a new [`wedow/ticket`](https://github.com/wedow/ticket) commit, replace the vendored script and upstream license together, update the notice, then run the test and package checks.
